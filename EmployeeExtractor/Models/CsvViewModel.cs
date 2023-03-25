@@ -2,7 +2,7 @@
 {
     public class CsvViewModel
     {
-        public ICollection<CsvWorkedTogether> CsvWorkedCollection { get; set; }
-        public ICollection<CsvWorkedTogether> CsvWorkerDublicatesCollection { get; set; }
+        public ICollection<CsvWorkedTogether> CsvWorkedCollection { get; set; } = new List<CsvWorkedTogether>();
+        public ICollection<CsvWorkedTogether> CsvWorkerDublicatesCollection { get; set; } = new List<CsvWorkedTogether>();
     }
 }

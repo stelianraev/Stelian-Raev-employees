@@ -1,124 +1,82 @@
 ﻿namespace EmployeeExtractor.Services
 {
-    using EmployeeExtractor.Models;
-    using System.Collections.Generic;
     using System.Text;
+    using System.Collections.Generic;
+
+    using EmployeeExtractor.Models;
 
     public class FileParser
     {
-        public CsvViewModel ParseCsvToHtmlTable(IFormFile csvFile)
+        private readonly ILogger _logger;
+        public FileParser(ILogger<FileParser> logger)
         {
-            bool isHeaderRow = default;
-            CsvViewModel csvViewModel = new CsvViewModel();
+            _logger = logger;
+        }
+
+        public async Task<ICollection<CSVWorkerModel>> ParseCsvCustomModelAsync(IFormFile csvFile)
+        {
             ICollection<CSVWorkerModel> workerModelCollection = new List<CSVWorkerModel>();
 
             using (StreamReader reader = new StreamReader(csvFile.OpenReadStream()))
             {
-                string line = reader.ReadLine();
+                string line = await reader.ReadLineAsync();
                 string[] values = line.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-                if (DateTime.TryParse(values[2], out _) == false)
+                //Checking for headers. If there is no headers this will parse first raw
+                if (DateTime.TryParse(values[2], out _))
                 {
-                    isHeaderRow = true;
-                }
-                else
-                {
-                    isHeaderRow = false;
-                }
+                    workerModelCollection.Add(CSVWorkerModelFactory(values));
+				}
 
                 while (!reader.EndOfStream)
-                {
-                    if (isHeaderRow)
-                    {
-                        line = reader.ReadLine();
-                    }
+                {                    
+					line = await reader.ReadLineAsync();
+					values = line.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-                    values = line.Split(',', StringSplitOptions.RemoveEmptyEntries);
-
-                    workerModelCollection.Add(new CSVWorkerModel()
-                    {
-                        EmpID = int.Parse(values[0]),
-                        ProjectID = int.Parse(values[1]),
-                        DateFrom = DateTime.Parse(values[2]),
-                        DateTo = DateTime.Parse(values[3].ToLower() == "null" || String.IsNullOrEmpty(values[3]) ? DateTime.Today.ToString() : values[3]),
-                    });
-                }
+					workerModelCollection.Add(CSVWorkerModelFactory(values));
+					//try
+					//{
+					//    workerModelCollection.Add(new CSVWorkerModel()
+					//    {
+					//        EmpID = int.Parse(values[0]),
+					//        ProjectID = int.Parse(values[1]),
+					//        DateFrom = DateTime.Parse(values[2]),
+					//        DateTo = DateTime.Parse(values[3].ToLower() == "null" || String.IsNullOrEmpty(values[3]) ? DateTime.Today.ToString() : values[3]),
+					//    });
+					//}
+					//catch(Exception ex)
+					//{
+					//    _logger.LogError("Csv parsing model fail {Parser}", ex);
+					//}
+				}
             }
 
-            var extractWorkersFromCollection = workerModelCollection.GroupBy(x => x.ProjectID).Where(y => y.Count() > 1).ToList();
-
-            ICollection<CsvWorkedTogether> workedTogether = new List<CsvWorkedTogether>();
-            ICollection<CsvWorkedTogether> dublicates = new List<CsvWorkedTogether>();
-            //ICollection<Dictionary<int, List<CsvWorkedTogether>>> employeeCollection = new List<Dictionary<int, List<CsvWorkedTogether>>>();
-
-            //TODO (Possible Recursion)
-            foreach (IGrouping<int, CSVWorkerModel> proj in extractWorkersFromCollection)
-            {
-                var test = proj.ToList();
-
-                for (int i = 0; i < test.Count; i++)
-                {
-                    var worker1 = test[i];
-
-                    for (int j = i + 1; j < test.Count; j++)
-                    {
-                        if (worker1.ProjectID == 10)
-                        {
-
-                        }
-
-                        var worker2 = test[j];
-
-                        DateTime start = worker1.DateFrom > worker2.DateFrom ? worker1.DateFrom : worker2.DateFrom;
-                        DateTime? end = worker1.DateTo < worker2.DateTo ? worker1.DateTo : worker2.DateTo;
-                        TimeSpan duration = (TimeSpan)(end - start);
-                        var time = duration > TimeSpan.Zero ? duration : TimeSpan.Zero;
-                        var days = time.Days;
-
-                        if (days > 0)
-                        {
-                            CsvWorkedTogether workerModel = new CsvWorkedTogether()
-                            {
-                                EmployeeID1 = worker1.EmpID,
-                                EmployeeID2 = worker2.EmpID,
-                                ProjectID = worker1.ProjectID,
-                                WorkedTimeTogether = days
-                            };
-
-                            //TODO configuration
-                            //var dublicate = workedTogether.FirstOrDefault(x => x.EmployeeID1 == workerModel.EmployeeID1 
-                            //                                                && x.EmployeeID2 == workerModel.EmployeeID2 
-                            //                                                && x.ProjectID == workerModel.ProjectID
-                            //                                                && x.WorkedTimeTogether == workerModel.WorkedTimeTogether);
-                            //
-                            //if (dublicate != null)
-                            //{
-                            //    continue;
-                            //    //dublicates.Add(dublicate);
-                            //}
-                            //if(worker1.EmpID == worker2.EmpID && worker1.DateFrom == worker2.DateFrom && worker1.DateTo == worker2.DateTo)
-                            if (worker1.EmpID == worker2.EmpID)
-                            {
-                                //TODO Return Error for dublicates
-                                // Dublicates - dublicate message - check your csv file
-                                dublicates.Add(workerModel);
-                            }
-                            else
-                            {
-                                workedTogether.Add(workerModel);
-                            }
-                        }
-                    }
-                }
-            }
-
-            csvViewModel.CsvWorkerDublicatesCollection = dublicates;
-            var result = workedTogether.OrderByDescending(x => x.WorkedTimeTogether).First();
-
-            ICollection<CsvWorkedTogether> allEmployees = workedTogether.Where(x => x.EmployeeID1 == result.EmployeeID1 && x.EmployeeID2 == result.EmployeeID2).ToList();
-            csvViewModel.CsvWorkedCollection = allEmployees;
-            return csvViewModel;
+            _logger.LogInformation("Successfully pass CSV Parsing");
+            return workerModelCollection;
         }
+
+        private CSVWorkerModel CSVWorkerModelFactory(string[] values)
+        {
+			CSVWorkerModel csvWorkerModel = null;
+
+			try
+			{
+				csvWorkerModel = new CSVWorkerModel()
+				{
+					EmpID = int.Parse(values[0]),
+					ProjectID = int.Parse(values[1]),
+					DateFrom = DateTime.Parse(values[2]),
+					DateTo = DateTime.Parse(values[3].ToLower() == "null" || String.IsNullOrEmpty(values[3]) ? DateTime.Today.ToString() : values[3]),
+				};
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError("Csv parsing model fail {Parser}", ex);
+			}
+
+            return csvWorkerModel;
+		}
+
 
         //public static void TestRecursion(List<CSVWorkerModel> projGroup, int index)
         //{
@@ -133,7 +91,7 @@
         //
         //}
 
-        public string ParseCsvToHtmlTable(CsvViewModel csvViewModel)
+        public string CsvModelToHtmlTable(CsvViewModel csvViewModel)
         {
             StringBuilder htmlTable = new StringBuilder();
 

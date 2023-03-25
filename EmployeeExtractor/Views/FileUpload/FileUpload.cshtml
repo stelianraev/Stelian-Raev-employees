@@ -4,18 +4,16 @@
     ViewData["Title"] = "Employee Extract";
 }
 
-<a>
-    @Html.ValidationSummary()
-</a>
-
-<div class="container">
+<div class="container">    
     <div class="row">
         <div class="col-sm-12 offset-lg-2 col-lg-8 offset-xl-3 col-xl-6">
             <form method="post" enctype="multipart/form-data">
 
-                <div class="form-group">
+                <div>@Html.ValidationSummary(false, "", new { @class = "validation-summary-errors" })</div>
+
+                <div class="form-group">                    
                     <label> Select a csv file:</label>
-                    <input type="file" name="FileSelect" accept=".csv">
+                    <input type="file" name="FileSelect" accept=".csv" id="file-select">
                     <input class="btn btn-primary" type="submit" value="Upload" disabled id="go-btn">
                 </div>               
 
@@ -36,14 +34,14 @@
                     });
                 </script>
 
-            </form>
+            </form>            
 
             @if (!(String.IsNullOrEmpty(Model.HtmlTable) || String.IsNullOrWhiteSpace(Model.HtmlTable)))
             {
                 <div>
                     <meta name="viewport" content="width=device-width" />
                     <label>Csv Table </label>
-                    @Html.Raw(Model.HtmlTable)
+                    @Html.Raw("<table class=\"styled-table\">" + Model.HtmlTable + "</table>")
                 </div>
             }
 

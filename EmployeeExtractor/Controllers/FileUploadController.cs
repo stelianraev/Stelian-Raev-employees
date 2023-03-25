@@ -2,25 +2,26 @@
 {
     using EmployeeExtractor.Services;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging;
     using Models;
 
     public class FileUploadController : Controller
     {
-        private readonly FileParser _fileParser;
-        public FileUploadController(FileParser fileParser)
+        private readonly Engine _engine;
+        public FileUploadController(Engine engine)
         {
-            _fileParser = fileParser;
+            _engine = engine;
         }
 
-        public FileParser FileParser
+        public Engine Engine
         {
-            get { return _fileParser; }
+            get { return _engine; }
         }
 
         public IActionResult FileUpload() => View(new EmployeeExtractorModel());
 
         [HttpPost]
-        public IActionResult FileUpload(EmployeeExtractorModel model, IFormFile fileSelect)
+        public async Task<IActionResult> FileUpload(EmployeeExtractorModel model, IFormFile fileSelect)
         {
             //check if file is from allowedFileTypes. Possible to extend with more files
             string[] allowedFileTypes = { ".csv" };
@@ -44,21 +45,21 @@
                 this.ModelState.AddModelError("file", "File is missing. Please choose a file");
             }
 
-            //model.HtmlTable = 
-            var result = FileParser.ParseCsvToHtmlTable(fileSelect);
-            model.HtmlTable = FileParser.ParseCsvToHtmlTable(result);
-
-            if (result.CsvWorkerDublicatesCollection.Count > 0)
-            {
-                foreach (var dublicate in result.CsvWorkerDublicatesCollection)
-                {
-                    this.ModelState.AddModelError("file", $"Dublicates in the file: EmployeeID: {dublicate.EmployeeID1}, ProjectID {dublicate.ProjectID}" );
-                }                
-            }
-
             if (!ModelState.IsValid)
             {
                 return View(model);
+            }
+
+            var csvParse = await Engine.FileParser.ParseCsvCustomModelAsync(fileSelect);
+            var workersCollection = Engine.CalculateWorkerPairs(csvParse);
+            model.HtmlTable = Engine.FileParser.CsvModelToHtmlTable(workersCollection);
+
+            if (workersCollection.CsvWorkerDublicatesCollection.Count > 0)
+            {
+                foreach (var dublicate in workersCollection.CsvWorkerDublicatesCollection)
+                {
+                    this.ModelState.AddModelError("file", $"Dublicates in the file: EmployeeID: {dublicate.EmployeeID1}, ProjectID {dublicate.ProjectID}" );
+                }                
             }
 
             return View(model);
