@@ -1,0 +1,48 @@
+﻿@model CsvViewModel
+
+@{
+    ViewData["Title"] = "Employee Extract";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 offset-lg-2 col-lg-8 offset-xl-3 col-xl-6">
+            <form method="post" enctype="multipart/form-data">
+
+                <div>@Html.ValidationSummary(false, "", new { @class = "validation-summary-errors" })</div>
+
+                <div class="btncontainer">
+                <input type="file" name="FileSelect" accept=".csv" id="file-select" class="browse-btn">
+                <input class="btn btn-primary" type="submit" value="Upload" disabled id="go-btn">
+                </div>
+
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script>
+                    $(function () {
+                        // disable the Go button by default
+                        $('#go-btn').prop('disabled', true);
+
+                        // enable/disable the Go button based on whether a file is selected
+                        $('input[type="file"]').on('change', function () {
+                            if ($(this).val()) {
+                                $('#go-btn').prop('disabled', false);
+                            } else {
+                                $('#go-btn').prop('disabled', true);
+                            }
+                        });
+                    });
+                </script>
+
+            </form>
+
+            @if (!(String.IsNullOrEmpty(Model.HtmlTable) || String.IsNullOrWhiteSpace(Model.HtmlTable)))
+            {
+                <div>
+                    <meta name="viewport" content="width=device-width" />
+                    @Html.Raw("<table class=\"styled-table\">" + Model.HtmlTable + "</table>")
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
