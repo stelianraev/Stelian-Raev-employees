@@ -34,7 +34,7 @@ body {
         position: absolute;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -15%);
+        transform: translate(-50%, -31.5%);
         width: 40vw;
         height: 89vh;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -43,19 +43,34 @@ body {
 
 @media screen and (min-width: 768px) {
     .homescreen {
+        top: 32%;
+        left: 50%;
+        transform: translate(-50%, -15%);
+        width: 29vw;
+        height: 79vh;
         padding-bottom: 42.1875%;
     }
 }
 
 @media screen and (min-width: 992px) {
     .homescreen {
+        top: 32%;
+        left: 50%;
+        transform: translate(-50%, -15%);
+        width: 29vw;
+        height: 79vh;
         padding-bottom: 31.25%;
     }
 }
 
 @media screen and (min-width: 1200px) {
     .homescreen {
-        padding-bottom: 26.042%;
+        top: 32%;
+        left: 50%;
+        transform: translate(-50%, -15%);
+        width: 29vw;
+        height: 79vh;
+        padding-bottom: 20.042%;
     }
 }
 

@@ -42,8 +42,8 @@ namespace EmployeeExtractor.Services
                             var time = duration > TimeSpan.Zero ? duration : TimeSpan.Zero;
                             var days = time.Days;
 
-                            if (days > 0)
-                            {
+                            //if (days > 0)
+                            //{
                                 CsvWorkedTogether workerModel = new CsvWorkedTogether()
                                 {
                                     EmployeeID1 = worker1.EmpID,
@@ -58,9 +58,12 @@ namespace EmployeeExtractor.Services
                                 }
                                 else
                                 {
-                                    workedTogether.Add(workerModel);
+                                    if (days > 0)
+                                    {
+                                        workedTogether.Add(workerModel);
+                                    }
                                 }
-                            }
+                            //}
                         }
                     }
                 }
