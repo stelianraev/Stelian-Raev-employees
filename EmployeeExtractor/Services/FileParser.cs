@@ -26,29 +26,15 @@
                 if (DateTime.TryParse(values[2], out _))
                 {
                     workerModelCollection.Add(CSVWorkerModelFactory(values));
-				}
+                }
 
                 while (!reader.EndOfStream)
-                {                    
-					line = await reader.ReadLineAsync();
-					values = line.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                {
+                    line = await reader.ReadLineAsync();
+                    values = line.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-					workerModelCollection.Add(CSVWorkerModelFactory(values));
-					//try
-					//{
-					//    workerModelCollection.Add(new CSVWorkerModel()
-					//    {
-					//        EmpID = int.Parse(values[0]),
-					//        ProjectID = int.Parse(values[1]),
-					//        DateFrom = DateTime.Parse(values[2]),
-					//        DateTo = DateTime.Parse(values[3].ToLower() == "null" || String.IsNullOrEmpty(values[3]) ? DateTime.Today.ToString() : values[3]),
-					//    });
-					//}
-					//catch(Exception ex)
-					//{
-					//    _logger.LogError("Csv parsing model fail {Parser}", ex);
-					//}
-				}
+                    workerModelCollection.Add(CSVWorkerModelFactory(values));
+                }
             }
 
             _logger.LogInformation("Successfully pass CSV Parsing");
@@ -57,39 +43,25 @@
 
         private CSVWorkerModel CSVWorkerModelFactory(string[] values)
         {
-			CSVWorkerModel csvWorkerModel = null;
+            CSVWorkerModel csvWorkerModel = null;
 
-			try
-			{
-				csvWorkerModel = new CSVWorkerModel()
-				{
-					EmpID = int.Parse(values[0]),
-					ProjectID = int.Parse(values[1]),
-					DateFrom = DateTime.Parse(values[2]),
-					DateTo = DateTime.Parse(values[3].ToLower() == "null" || String.IsNullOrEmpty(values[3]) ? DateTime.Today.ToString() : values[3]),
-				};
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError("Csv parsing model fail {Parser}", ex);
-			}
+            try
+            {
+                csvWorkerModel = new CSVWorkerModel()
+                {
+                    EmpID = int.Parse(values[0]),
+                    ProjectID = int.Parse(values[1]),
+                    DateFrom = DateTime.Parse(values[2]),
+                    DateTo = DateTime.Parse(values[3].ToLower() == "null" || String.IsNullOrEmpty(values[3]) ? DateTime.Today.ToString() : values[3]),
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Csv parsing model fail {Parser}", ex);
+            }
 
             return csvWorkerModel;
-		}
-
-
-        //public static void TestRecursion(List<CSVWorkerModel> projGroup, int index)
-        //{
-        //    if(index == projGroup.Count - 1)
-        //    {
-        //        return;
-        //    }
-        //
-        //    var worker1 = projGroup[index];
-        //
-        //    TestRecursion(projGroup, index + 1);
-        //
-        //}
+        }
 
         public string CsvModelToHtmlTable(CsvViewModel csvViewModel)
         {

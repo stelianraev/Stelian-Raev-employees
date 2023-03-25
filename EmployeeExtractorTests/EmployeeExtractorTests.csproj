@@ -23,13 +23,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Resources\FileWithoutHeaders.csv">
+    <None Update="TestingFiles\DataFormats.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\PairsWithMoreThanOneProj.csv">
+    <None Update="TestingFiles\FileWithoutHeadersAndDublicates.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\WithoutPair.csv">
+    <None Update="TestingFiles\ManyProjAndOneProjWithSameAmountOfTime.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestingFiles\ManyProjectsWithMoreTimeVsOneProjWithLessTime.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestingFiles\OnlyOneRecord.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestingFiles\PairsWithMoreThanOneProj.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestingFiles\WithoutPair.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

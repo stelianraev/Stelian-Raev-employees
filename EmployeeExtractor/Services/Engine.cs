@@ -1,7 +1,8 @@
-﻿using EmployeeExtractor.Models;
-
-namespace EmployeeExtractor.Services
+﻿namespace EmployeeExtractor.Services
 {
+    using EmployeeExtractor.Models;
+    using System.Collections.Generic;
+
     public class Engine
     {
         private readonly FileParser _fileParser;
@@ -21,7 +22,7 @@ namespace EmployeeExtractor.Services
             ICollection<CsvWorkedTogether> dublicates = new List<CsvWorkedTogether>();
             try
             {
-                var extractWorkersFromCollection = workerModelCollection.GroupBy(x => x.ProjectID).Where(y => y.Count() > 1).ToList();
+                var extractWorkersFromCollection = workerModelCollection?.GroupBy(x => x.ProjectID).Where(y => y.Count() > 1).ToList();
 
                 //TODO (Possible Recursion)
                 foreach (IGrouping<int, CSVWorkerModel> proj in extractWorkersFromCollection)
@@ -42,28 +43,28 @@ namespace EmployeeExtractor.Services
                             var time = duration > TimeSpan.Zero ? duration : TimeSpan.Zero;
                             var days = time.Days;
 
-                            //if (days > 0)
-                            //{
-                                CsvWorkedTogether workerModel = new CsvWorkedTogether()
+                            int smallerID = worker1.EmpID < worker2.EmpID ? worker1.EmpID : worker2.EmpID;
+                            int largerID = worker1.EmpID > worker2.EmpID ? worker1.EmpID : worker2.EmpID;
+
+                            CsvWorkedTogether workerModel = new CsvWorkedTogether()
+                            {
+                                EmployeeID1 = smallerID,
+                                EmployeeID2 = largerID,
+                                ProjectID = worker1.ProjectID,
+                                WorkedTimeTogether = days
+                            };
+
+                            if (worker1.EmpID == worker2.EmpID)
+                            {
+                                dublicates.Add(workerModel);
+                            }
+                            else
+                            {
+                                if (days > 0)
                                 {
-                                    EmployeeID1 = worker1.EmpID,
-                                    EmployeeID2 = worker2.EmpID,
-                                    ProjectID = worker1.ProjectID,
-                                    WorkedTimeTogether = days
-                                };
-                                //checking for dublicates
-                                if (worker1.EmpID == worker2.EmpID)
-                                {
-                                    dublicates.Add(workerModel);
+                                    workedTogether.Add(workerModel);
                                 }
-                                else
-                                {
-                                    if (days > 0)
-                                    {
-                                        workedTogether.Add(workerModel);
-                                    }
-                                }
-                            //}
+                            }
                         }
                     }
                 }
@@ -71,17 +72,26 @@ namespace EmployeeExtractor.Services
             catch (Exception ex)
             {
                 _logger.LogError("Error in CsvFile calculation {Calculation}", ex);
+                throw;
             }
 
             csvViewModel.CsvWorkerDublicatesCollection = dublicates;
 
-            if(workedTogether.Any())
+            if (workedTogether.Any())
             {
-				var result = workedTogether.OrderByDescending(x => x.WorkedTimeTogether).First();
-				ICollection<CsvWorkedTogether> allEmployees = workedTogether.Where(x => (x.EmployeeID1 == result.EmployeeID1 && x.EmployeeID2 == result.EmployeeID2) || (x.EmployeeID1 == result.EmployeeID2 && x.EmployeeID2 == result.EmployeeID1)).ToList();
-				csvViewModel.CsvWorkedCollection = allEmployees;
-				_logger.LogInformation("Succesfully pass CsvFile Calculation block");
-			}        
+                var groups = workedTogether.GroupBy(x => new { x.EmployeeID1, x.EmployeeID2 })
+                           .OrderByDescending(x => x.Sum(x => x.WorkedTimeTogether))
+                           .ToList();
+
+                var highestSum = groups.First().Sum(x => x.WorkedTimeTogether);
+
+                var highestGroups = groups.Where(x => x.Sum(y => y.WorkedTimeTogether) == highestSum)
+                                          .SelectMany(x => x)
+                                          .ToList();
+
+                csvViewModel.CsvWorkedCollection = highestGroups;
+                _logger.LogInformation("Succesfully pass CsvFile Calculation block");
+            }
 
             return csvViewModel;
         }

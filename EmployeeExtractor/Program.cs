@@ -1,19 +1,21 @@
 using EmployeeExtractor.Services;
+using EmployeeExtractor.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var serviceConfig= builder.Configuration.GetSection("ServiceConfig");
+
 // Add services to the container.
+builder.Services.Configure<ServiceConfiguration>(serviceConfig);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<FileParser>();
 builder.Services.AddSingleton<Engine>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

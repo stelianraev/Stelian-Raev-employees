@@ -1,16 +1,20 @@
 ﻿namespace EmployeeExtractor.Controllers
 {
-    using EmployeeExtractor.Services;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+
     using Models;
+    using EmployeeExtractor.Services;
+    using EmployeeExtractor.Configuration;
 
     public class FileUploadController : Controller
     {
         private readonly Engine _engine;
-        public FileUploadController(Engine engine)
+        private readonly ServiceConfiguration _serviceConfiguration;
+        public FileUploadController(Engine engine, IOptions<ServiceConfiguration> serviceConfiguration)
         {
             _engine = engine;
+            _serviceConfiguration = serviceConfiguration.Value;
         }
 
         public Engine Engine
@@ -18,13 +22,13 @@
             get { return _engine; }
         }
 
-        public IActionResult FileUpload() => View(new EmployeeExtractorModel());
+        public IActionResult FileUpload() => View(new CsvViewModel());
 
         [HttpPost]
-        public async Task<IActionResult> FileUpload(EmployeeExtractorModel model, IFormFile fileSelect)
+        public async Task<IActionResult> FileUpload(CsvViewModel model, IFormFile fileSelect)
         {
             //check if file is from allowedFileTypes. Possible to extend with more files
-            string[] allowedFileTypes = { ".csv" };
+            string[] allowedFileTypes = _serviceConfiguration.AllowedFileTypes;
             var extension = Path.GetExtension(fileSelect.FileName).ToLower();
 
             if (!allowedFileTypes.Contains(extension))
@@ -35,7 +39,7 @@
             if (fileSelect != null)
             {
                 //File size validation max size 5MB
-                if (fileSelect.Length > 5 * 1024 * 1024)
+                if (fileSelect.Length > _serviceConfiguration.FileSizeLimit * 1024 * 1024)
                 {
                     this.ModelState.AddModelError("file", "File is too big. Max size is 5MB");
                 }                                
@@ -50,17 +54,24 @@
                 return View(model);
             }
 
-            var csvParse = await Engine.FileParser.ParseCsvCustomModelAsync(fileSelect);
-            var workersCollection = Engine.CalculateWorkerPairs(csvParse);
-            model.HtmlTable = Engine.FileParser.CsvModelToHtmlTable(workersCollection);
-
-            if (workersCollection.CsvWorkerDublicatesCollection.Count > 0)
+            try
             {
-                foreach (var dublicate in workersCollection.CsvWorkerDublicatesCollection)
+                var csvParse = await Engine.FileParser.ParseCsvCustomModelAsync(fileSelect);
+                var workersCollection = Engine.CalculateWorkerPairs(csvParse);
+                model.HtmlTable = Engine.FileParser.CsvModelToHtmlTable(workersCollection);
+
+                if (workersCollection.CsvWorkerDublicatesCollection.Count > 0)
                 {
-                    this.ModelState.AddModelError("file", $"Dublicates in the file: EmployeeID: {dublicate.EmployeeID1}, ProjectID {dublicate.ProjectID}" );
-                }                
+                    foreach (var dublicate in workersCollection.CsvWorkerDublicatesCollection)
+                    {
+                        this.ModelState.AddModelError("file", $"Dublicates in the file: EmployeeID: {dublicate.EmployeeID1}, ProjectID {dublicate.ProjectID}");
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                this.ModelState.AddModelError("file", "Invalid csv file or data inside. Please notice EmployeeID`s and ProjID must be numbers");
+            }            
 
             return View(model);
         }

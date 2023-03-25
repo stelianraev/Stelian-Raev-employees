@@ -23,7 +23,7 @@ namespace EmployeeExtractorTests
             _engine = new Engine(engineLoggerMock.Object, fileParse);
 
             var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            _resourcesPath = Path.Combine(assemblyPath, "Resources");   
+            _resourcesPath = Path.Combine(assemblyPath, "TestingFiles");   
         }
 
         [Test]
