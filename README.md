@@ -1,4 +1,5 @@
 <h1> My vision of the task <h1>
   
-![Sirmaa](https://user-images.githubusercontent.com/40591640/227743363-a462f40d-c9eb-41d9-8b53-c3638522867c.jpeg)
+![Sirma](https://user-images.githubusercontent.com/40591640/227789997-5979e6e1-950d-4ec2-a5f6-03f27d7bff56.jpeg)
+
 
