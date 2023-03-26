@@ -7,9 +7,9 @@ var serviceConfig= builder.Configuration.GetSection("ServiceConfig");
 
 // Add services to the container.
 builder.Services.Configure<ServiceConfiguration>(serviceConfig);
-builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<FileParser>();
+builder.Services.AddSingleton<IFileParser, FileParser>();
 builder.Services.AddSingleton<Engine>();
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 

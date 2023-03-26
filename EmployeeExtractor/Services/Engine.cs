@@ -1,19 +1,21 @@
 ﻿namespace EmployeeExtractor.Services
 {
-    using EmployeeExtractor.Models;
     using System.Collections.Generic;
+
+    using EmployeeExtractor.Models;
 
     public class Engine
     {
-        private readonly FileParser _fileParser;
+        private readonly IFileParser _fileParser;
         private readonly ILogger _logger;
-        public Engine(ILogger<Engine> logger, FileParser fileParser)
+
+        public Engine(ILogger<Engine> logger, IFileParser fileParser)
         {
             _fileParser = fileParser;
             _logger = logger;
         }
 
-        public FileParser FileParser => _fileParser;
+        public IFileParser FileParser => _fileParser;
 
         public CsvViewModel CalculateWorkerPairs(ICollection<CSVWorkerModel> workerModelCollection)
         {
@@ -27,15 +29,15 @@
                 //TODO (Possible Recursion)
                 foreach (IGrouping<int, CSVWorkerModel> proj in extractWorkersFromCollection)
                 {
-                    var test = proj.ToList();
+                    var projToList = proj.ToList();
 
-                    for (int i = 0; i < test.Count; i++)
+                    for (int i = 0; i < projToList.Count; i++)
                     {
-                        var worker1 = test[i];
+                        var worker1 = projToList[i];
 
-                        for (int j = i + 1; j < test.Count; j++)
+                        for (int j = i + 1; j < projToList.Count; j++)
                         {
-                            var worker2 = test[j];
+                            var worker2 = projToList[j];
 
                             DateTime start = worker1.DateFrom > worker2.DateFrom ? worker1.DateFrom : worker2.DateFrom;
                             DateTime? end = worker1.DateTo < worker2.DateTo ? worker1.DateTo : worker2.DateTo;

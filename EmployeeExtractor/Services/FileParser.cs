@@ -5,10 +5,11 @@
 
     using EmployeeExtractor.Models;
 
-    public class FileParser
+    public class FileParser : IFileParser
     {
         private readonly ILogger _logger;
-        public FileParser(ILogger<FileParser> logger)
+
+        public FileParser(ILogger<IFileParser> logger)
         {
             _logger = logger;
         }
@@ -22,8 +23,7 @@
                 string line = await reader.ReadLineAsync();
                 string[] values = line.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-                //Checking for headers. If there is no headers this will parse first raw
-                if (DateTime.TryParse(values[2], out _))
+                if (CsvHeadersChecker(values))
                 {
                     workerModelCollection.Add(CSVWorkerModelFactory(values));
                 }
@@ -41,7 +41,22 @@
             return workerModelCollection;
         }
 
-        private CSVWorkerModel CSVWorkerModelFactory(string[] values)
+        /// <summary>
+        /// Checking for headers. If there is no headers this will parse first raw
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public bool CsvHeadersChecker(string[] values)
+        {
+            if (DateTime.TryParse(values[2], out _))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public CSVWorkerModel CSVWorkerModelFactory(string[] values)
         {
             CSVWorkerModel csvWorkerModel = null;
 
@@ -84,7 +99,6 @@
                 htmlTable.Append("<td>" + pair.WorkedTimeTogether + "</td>");
                 htmlTable.Append("</tr>");
             }
-
 
             htmlTable.Append("</tbody></table>");
             return htmlTable.ToString();
