@@ -1,17 +1,19 @@
 namespace EmployeeExtractorTests
 {
-    using EmployeeExtractor.Services;
+    using System.Reflection;
+
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Logging;
+
     using Moq;
     using NUnit.Framework.Internal;
-    using System.Reflection;
+
+    using EmployeeExtractor.Services;
 
     public class EngineTests
     {
         private Engine _engine;
         private string _resourcesPath;
-
 
         [SetUp]
         public void Setup()

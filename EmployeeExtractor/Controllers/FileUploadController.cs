@@ -17,11 +17,6 @@
             _serviceConfiguration = serviceConfiguration.Value;
         }
 
-        public Engine Engine
-        {
-            get { return _engine; }
-        }
-
         public IActionResult FileUpload() => View(new CsvViewModel());
 
         [HttpPost]
@@ -56,9 +51,9 @@
 
             try
             {
-                var csvParse = await Engine.FileParser.ParseCsvCustomModelAsync(fileSelect);
-                var workersCollection = Engine.CalculateWorkerPairs(csvParse);
-                model.HtmlTable = Engine.FileParser.CsvModelToHtmlTable(workersCollection);
+                var csvParse = await _engine.FileParser.ParseCsvCustomModelAsync(fileSelect);
+                var workersCollection = _engine.CalculateWorkerPairs(csvParse);
+                model.HtmlTable = _engine.FileParser.CsvModelToHtmlTable(workersCollection);
 
                 if (workersCollection.CsvWorkerDublicatesCollection.Count > 0)
                 {
@@ -68,7 +63,7 @@
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 this.ModelState.AddModelError("file", "Invalid csv file or data inside. Please notice EmployeeID`s and ProjID must be numbers");
             }            
