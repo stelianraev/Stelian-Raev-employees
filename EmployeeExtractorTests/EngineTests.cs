@@ -31,7 +31,7 @@ namespace EmployeeExtractorTests
         [Test]
         public void ParseCsvCustomModel()
         {
-            var fileWithoutHeaders = Path.Combine(_resourcesPath, "FileWithoutHeaders.csv");
+            var fileWithoutHeaders = Path.Combine(_resourcesPath, "FileWithoutHeadersAndWithDublicates.csv");
 
             using var stream = new FileStream(fileWithoutHeaders, FileMode.Open);
             var formFile = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(fileWithoutHeaders))
@@ -48,7 +48,7 @@ namespace EmployeeExtractorTests
         [Test]
         public void CalculateWorkerPairs()
         {
-            var fileWithoutHeaders = Path.Combine(_resourcesPath, "FileWithoutHeaders.csv");
+            var fileWithoutHeaders = Path.Combine(_resourcesPath, "FileWithoutHeadersAndWithDublicates.csv");
 
             using var stream = new FileStream(fileWithoutHeaders, FileMode.Open);
             var formFile = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(fileWithoutHeaders))
