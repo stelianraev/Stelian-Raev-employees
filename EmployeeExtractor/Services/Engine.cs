@@ -41,7 +41,7 @@
 
                             DateTime start = worker1.DateFrom > worker2.DateFrom ? worker1.DateFrom : worker2.DateFrom;
                             DateTime? end = worker1.DateTo < worker2.DateTo ? worker1.DateTo : worker2.DateTo;
-                            TimeSpan duration = (TimeSpan)(end - start);
+                            TimeSpan duration = end.Value.AddDays(1) - start;
                             var time = duration > TimeSpan.Zero ? duration : TimeSpan.Zero;
                             var days = time.Days;
 

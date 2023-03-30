@@ -1,7 +1,6 @@
-﻿using EmployeeExtractor.Models;
-
-namespace EmployeeExtractor.Services
+﻿namespace EmployeeExtractor.Services
 {
+    using EmployeeExtractor.Models;
     public interface IFileParser
     {
         Task<ICollection<CSVWorkerModel>> ParseCsvCustomModelAsync(IFormFile csvFile);

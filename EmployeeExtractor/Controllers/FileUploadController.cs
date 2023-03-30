@@ -33,7 +33,7 @@
 
             if (fileSelect != null)
             {
-                //File size validation max size 5MB
+                //File size validation max size 20MB
                 if (fileSelect.Length > _serviceConfiguration.FileSizeLimit * 1024 * 1024)
                 {
                     this.ModelState.AddModelError("file", "File is too big. Max size is 5MB");
